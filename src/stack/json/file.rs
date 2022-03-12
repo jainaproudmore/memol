@@ -1,57 +1,35 @@
-use super::super::Stackable;
 use super::task::Tasks;
-use std::fs::File;
-use std::io::Result;
-use std::path::Path;
+use std::io::{Result, Write};
 
 /// for saving json
-struct JsonFile {
-    // path: Path,
-    path: String,
+struct JsonFile<'a> {
+    path: &'a str,
+    tasks: Tasks,
 }
 
-impl JsonFile {
-    pub fn new<T>(path: T) -> Self
-    where
-        T: Into<String>,
-    {
-        JsonFile { path: path.into() }
+impl<'a> JsonFile<'a> {
+    pub fn init(path: &'a str) -> Result<Self> {
+        let tasks = Self::read(path)?;
+        Ok(JsonFile { path, tasks })
     }
 
-    pub fn read(&self) -> Result<Tasks> {
-        let mut f = File::open(self.path)?;
-        let mut buffer = String::new();
-        f.read_to_string(&mut buffer)?;
-        let tasks = Tasks::from_json(&buffer);
+    fn read(path: &str) -> Result<Tasks> {
+        let src = std::fs::read_to_string(path)?;
+        let tasks = Tasks::from_json(&src)?;
         Ok(tasks)
     }
 
-    pub fn write(&self, task: Tasks) -> Result<()> {
-        let mut f = File::open(self.path)?;
-        let json = Tasks::to_json(&task).expect("what?");
-        f.write_all(json)?;
+    pub fn sync(&self, task: Tasks) -> Result<()> {
+        // if file has already created , not exec error.
+        let mut f = std::fs::File::create(self.path)?;
+
+        let json = Tasks::to_json(&task)?;
+        f.write_all(&json.as_bytes())?;
+        f.flush()?;
         Ok(())
     }
-}
 
-impl Stackable for JsonFile {
-    fn pop(&self) -> Option<Task> {
-        self.tasks.pop()
-    }
-
-    fn push(&self, v: &Task) {
-        self.tasks.push(v)
-    }
-
-    fn peek(&self) -> Option<&Task> {
-        self.tasks.last()
-    }
-
-    fn top(&self) -> Option<&Task> {
-        self.peek()
-    }
-
-    fn is_empty(&self) -> bool {
-        self.tasks.len() == 0
+    pub fn tasks(&mut self) -> &mut Tasks {
+        &mut self.tasks
     }
 }

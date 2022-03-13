@@ -1,8 +1,8 @@
 use super::task::Tasks;
-use std::io::{Result, Write};
+use std::io::{Error, ErrorKind, Read, Result, Write};
 
 /// for saving json
-struct JsonFile<'a> {
+pub struct JsonFile<'a> {
     path: &'a str,
     tasks: Tasks,
 }
@@ -14,16 +14,27 @@ impl<'a> JsonFile<'a> {
     }
 
     fn read(path: &str) -> Result<Tasks> {
-        let src = std::fs::read_to_string(path)?;
-        let tasks = Tasks::from_json(&src)?;
-        Ok(tasks)
+        let mut f = std::fs::File::create(path)?;
+
+        let mut buf = Vec::new();
+        f.read_to_end(&mut buf)?;
+        f.flush()?;
+
+        let src = String::from_utf8(buf);
+        match src {
+            Ok(src) => {
+                let tasks = Tasks::from_json(&src)?;
+                Ok(tasks)
+            }
+            Err(e) => Err(Error::from(ErrorKind::InvalidData)),
+        }
     }
 
-    pub fn sync(&self, task: Tasks) -> Result<()> {
+    pub fn sync(&self) -> Result<()> {
         // if file has already created , not exec error.
         let mut f = std::fs::File::create(self.path)?;
 
-        let json = Tasks::to_json(&task)?;
+        let json = Tasks::to_json(&self.tasks)?;
         f.write_all(&json.as_bytes())?;
         f.flush()?;
         Ok(())

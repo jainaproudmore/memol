@@ -7,6 +7,18 @@ pub struct Task {
     pub timestamp: i64,
 }
 
+impl Task {
+    pub fn new<T>(v: T, ts: i64) -> Self
+    where
+        T: Into<String>,
+    {
+        Task {
+            value: v.into(),
+            timestamp: ts,
+        }
+    }
+}
+
 #[derive(Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct Tasks {
     tasks: Vec<Task>,
@@ -49,18 +61,6 @@ impl Tasks {
 #[cfg(test)]
 mod tests {
     use super::*;
-    impl Task {
-        pub fn new<T>(v: T, ts: i64) -> Self
-        where
-            T: Into<String>,
-        {
-            Task {
-                value: v.into(),
-                timestamp: ts,
-            }
-        }
-    }
-
     fn init() -> Tasks {
         let mut task = Tasks::new();
         task.tasks = vec![

@@ -17,6 +17,7 @@ const SUBCOMMAND_PUSH: &'static str = "push";
 const SUBCOMMAND_POP: &'static str = "pop";
 const SUBCOMMAND_PEEK: &'static str = "peek";
 const SUBCOMMAND_TOP: &'static str = "top";
+const SUBCOMMAND_ALL: &'static str = "all";
 
 const MEMOL_FILE_NAME: &'static str = ".memol.json";
 
@@ -40,7 +41,16 @@ fn main() -> Result<()> {
         )
         .subcommand(Command::new(SUBCOMMAND_POP).about("pop your latest task"))
         .subcommand(Command::new(SUBCOMMAND_PEEK).about("check your latest task"))
-        .subcommand(Command::new(SUBCOMMAND_TOP).about("check your latest task"))
+        .subcommand(
+            Command::new(SUBCOMMAND_TOP)
+                .about("check your latest task")
+                .arg(Arg::new("count")),
+        )
+        .subcommand(
+            Command::new(SUBCOMMAND_ALL)
+                .about("all your latest task")
+                .arg(Arg::new("count")),
+        )
         .get_matches();
 
     match matches.subcommand() {
@@ -60,13 +70,22 @@ fn main() -> Result<()> {
                 println!("pop {}", t);
             }
         }
-        Some((SUBCOMMAND_PEEK, _)) => {
-            if let Some(t) = json.tasks().peek() {
-                println!("{}", t);
+        Some((SUBCOMMAND_PEEK, sub_matches)) => {
+            if let Some(t) = sub_matches.value_of("count") {
+                if let Some(t) = json.tasks().peek() {
+                    println!("{}", t);
+                }
             }
         }
-        Some((SUBCOMMAND_TOP, _)) => {
-            if let Some(t) = json.tasks().top() {
+        Some((SUBCOMMAND_TOP, sub_matches)) => {
+            if let Some(t) = sub_matches.value_of("count") {
+                if let Some(t) = json.tasks().peek() {
+                    println!("{}", t);
+                }
+            }
+        }
+        Some((SUBCOMMAND_ALL, _)) => {
+            for t in json.tasks().all().iter() {
                 println!("{}", t);
             }
         }

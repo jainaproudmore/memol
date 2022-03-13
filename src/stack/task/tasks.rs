@@ -20,6 +20,12 @@ impl Tasks {
         to_string(tasks)
     }
 
+    pub fn r(self) -> Tasks {
+        Tasks {
+            tasks: self.tasks.into_iter().rev().collect::<Vec<_>>(),
+        }
+    }
+
     pub fn pop(&mut self) -> Option<Task> {
         self.tasks.pop()
     }
@@ -32,12 +38,17 @@ impl Tasks {
         self.tasks.last()
     }
 
-    pub fn top(&self) -> Option<&Task> {
-        self.peek()
+    pub fn peek_n(&self, count: usize) -> &[Task] {
+        let l = self.tasks.len();
+        &self.tasks[l - count..]
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.tasks.len() == 0
+    pub fn all(&self) -> &Vec<Task> {
+        &self.tasks
+    }
+
+    pub fn clear(&mut self) {
+        self.tasks = Vec::new();
     }
 }
 
@@ -79,20 +90,5 @@ mod tests {
     fn it_peek() {
         let tasks = init();
         assert_eq!(tasks.peek(), Some(&Task::new("Task3", 3)));
-    }
-
-    #[test]
-    fn it_top() {
-        let tasks = init();
-        assert_eq!(tasks.top(), Some(&Task::new("Task3", 3)));
-    }
-
-    #[test]
-    fn it_empty() {
-        let tasks = init();
-        assert_eq!(tasks.is_empty(), false);
-
-        let tasks = Tasks::new();
-        assert_eq!(tasks.is_empty(), true);
     }
 }

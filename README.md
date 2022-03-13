@@ -43,3 +43,21 @@ $ memol pop
 $ memol peek
 > I do something1 (at: 0000000000)
 ```
+
+## Recommend
+Customize your shell
+
+```bash
+###
+### for example
+###
+
+PS1_TASK=""
+task() {
+    memol peek | sed "s/ (at [0-9]*)//g"
+}
+PS1_TASK='$(task)'
+
+export PS1="$PS1_TASK\n >"
+```
+

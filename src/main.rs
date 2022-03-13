@@ -1,28 +1,37 @@
 extern crate chrono;
 extern crate clap;
+extern crate dirs;
 extern crate serde;
 extern crate serde_json;
 
 mod stack;
 
-use clap::{Arg, Command};
-use stack::json::{JsonFile, Task};
-
 use chrono::prelude::*;
+use clap::{Arg, Command};
+use stack::json::JsonFile;
+use stack::task::Task;
 use std::io::Result;
+use std::path::Path;
 
 const SUBCOMMAND_PUSH: &'static str = "push";
 const SUBCOMMAND_POP: &'static str = "pop";
 const SUBCOMMAND_PEEK: &'static str = "peek";
 const SUBCOMMAND_TOP: &'static str = "top";
 
-const MEMO_FILE_PATH: &'static str = "~/.memol.json";
+const MEMOL_FILE_NAME: &'static str = ".memol.json";
 
 fn main() -> Result<()> {
-    let mut json = JsonFile::init(MEMO_FILE_PATH)?;
+    let path = dirs::home_dir()
+        .unwrap()
+        .as_path()
+        .join(Path::new(MEMOL_FILE_NAME));
 
-    let matches = Command::new("memol")
-        .bin_name("cargo")
+    let mut json = JsonFile::init(&path)?;
+
+    let matches = Command::new("Your task stack")
+        .version("0.1.0")
+        .author("LeafChage (https://github.com/LeafChage)")
+        .bin_name("memol")
         .subcommand_required(true)
         .subcommand(
             Command::new(SUBCOMMAND_PUSH)
@@ -39,18 +48,29 @@ fn main() -> Result<()> {
             if let Some(t) = sub_matches.value_of("task") {
                 json.tasks()
                     .push(Task::new(t, Utc::now().timestamp_millis()));
+
+                if let Some(t) = json.tasks().peek() {
+                    println!("push {}", t);
+                }
             }
         }
         Some((SUBCOMMAND_POP, _)) => {
             json.tasks().pop();
+            if let Some(t) = json.tasks().peek() {
+                println!("pop {}", t);
+            }
         }
         Some((SUBCOMMAND_PEEK, _)) => {
-            json.tasks().peek();
+            if let Some(t) = json.tasks().peek() {
+                println!("{}", t);
+            }
         }
         Some((SUBCOMMAND_TOP, _)) => {
-            json.tasks().top();
+            if let Some(t) = json.tasks().top() {
+                println!("{}", t);
+            }
         }
-        _ => unreachable!("Exhausted list of subcommands and subcommand_required prevents `None`"),
+        _ => unreachable!("Can I help you? ` memol -h `"),
     }
 
     json.sync()?;

@@ -1,23 +1,6 @@
+use super::Task;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string, Result};
-
-#[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize)]
-pub struct Task {
-    pub value: String,
-    pub timestamp: i64,
-}
-
-impl Task {
-    pub fn new<T>(v: T, ts: i64) -> Self
-    where
-        T: Into<String>,
-    {
-        Task {
-            value: v.into(),
-            timestamp: ts,
-        }
-    }
-}
 
 #[derive(Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct Tasks {

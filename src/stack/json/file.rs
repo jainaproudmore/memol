@@ -1,32 +1,34 @@
-use super::task::Tasks;
-use std::io::{Error, ErrorKind, Read, Result, Write};
+use super::super::task::Tasks;
+use std::io::{Error, Read, Result, Write};
+use std::path::Path;
 
 /// for saving json
 pub struct JsonFile<'a> {
-    path: &'a str,
+    path: &'a Path,
     tasks: Tasks,
 }
 
 impl<'a> JsonFile<'a> {
-    pub fn init(path: &'a str) -> Result<Self> {
+    pub fn init(path: &'a Path) -> Result<Self> {
         let tasks = Self::read(path)?;
         Ok(JsonFile { path, tasks })
     }
 
-    fn read(path: &str) -> Result<Tasks> {
-        let mut f = std::fs::File::create(path)?;
+    fn read(path: &Path) -> Result<Tasks> {
+        let f = std::fs::File::open(path);
+        if let Err(_) = f {
+            return Ok(Tasks::new());
+        }
 
-        let mut buf = Vec::new();
-        f.read_to_end(&mut buf)?;
+        let mut f = f.unwrap();
+        let mut buf = String::new();
+        f.read_to_string(&mut buf)?;
         f.flush()?;
 
-        let src = String::from_utf8(buf);
-        match src {
-            Ok(src) => {
-                let tasks = Tasks::from_json(&src)?;
-                Ok(tasks)
-            }
-            Err(e) => Err(Error::from(ErrorKind::InvalidData)),
+        if let Ok(t) = Tasks::from_json(&buf) {
+            Ok(t)
+        } else {
+            Ok(Tasks::new())
         }
     }
 

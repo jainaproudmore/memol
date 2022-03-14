@@ -43,7 +43,7 @@ impl Tasks {
     }
 
     pub fn all_count(&self, count: usize) -> &[Task] {
-        let count = std::cmp::max(0, self.tasks.len() - count);
+        let count = std::cmp::max(0, self.tasks.len() as isize - count as isize) as usize;
         &self.tasks[count..self.tasks.len()]
     }
 
@@ -117,6 +117,17 @@ mod tests {
         assert_eq!(
             tasks.all_count(2),
             &[Task::new("Task2", 2), Task::new("Task3", 3),]
+        );
+    }
+
+    #[test]
+    fn it_all_count_over_size() {
+        let mut tasks = Tasks::new();
+        tasks.push(Task::new("Task1", 1));
+        tasks.push(Task::new("Task2", 2));
+        assert_eq!(
+            tasks.all_count(3),
+            &[Task::new("Task1", 1), Task::new("Task2", 2),]
         );
     }
 

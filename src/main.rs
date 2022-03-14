@@ -65,7 +65,7 @@ fn main() -> Result<()> {
     let clear = Command::new(SUBCOMMAND_CLEAR).about("clear your latest task");
 
     let matches = Command::new("Your task stack")
-        .version("0.2.0")
+        .version("0.2.1")
         .author("LeafChage (https://github.com/LeafChage)")
         .bin_name("memol")
         .subcommand_required(true)

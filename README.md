@@ -9,45 +9,85 @@ $ cargo install memol
 
 ## Usage
 ```sh
-$ memol --help
-
-Your task stack 0.1.0
+Your task stack 0.2.0
 LeafChage (https://github.com/LeafChage)
 
 USAGE:
-    memol <SUBCOMMAND>
+memol <SUBCOMMAND>
 
 OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+-h, --help       Print help information
+-V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
-    peek    check your latest task
-    pop     pop your latest task
-    push    push your latest task
-    top     check your latest task
+all      all your latest task
+clear    clear your latest task
+help     Print this message or the help of the given subcommand(s)
+peek     check your latest task
+pop      pop your latest task
+push     push your latest task
+top      check your latest task
 ```
 
 ## Example
+### Push
+```sh
+memol push "I do something Task1"
+memol push "I do something Task2"
+
+memol all
+# I do something Task2 (at: 0000000000)
+# I do something Task1 (at: 0000000000)
+
+memol push -r "I do something Task3 to first"
+memol all
+# I do something Task2 (at: 0000000000)
+# I do something Task1 (at: 0000000000)
+# I do something Task3 to first (at: 0000000000)
 ```
-$ memol push "I do something1"
 
-$ memol push "I do something2"
+### POP
+```sh
+memol all
+# I do something Task3 (at: 0000000000)
+# I do something Task2 (at: 0000000000)
+# I do something Task1 (at: 0000000000)
 
-$ memol peek
-> I do something2 (at: 0000000000)
+memol pop
+memol all
+# I do something Task2 (at: 0000000000)
+# I do something Task1 (at: 0000000000)
 
-$ memol pop
+memol pop -r
+memol all
+# I do something Task2 (at: 0000000000)
+```
 
-$ memol peek
-> I do something1 (at: 0000000000)
+### PEEK / TOP and ALL
+```sh
+memol all
+# I do something Task3 (at: 0000000000)
+# I do something Task2 (at: 0000000000)
+# I do something Task1 (at: 0000000000)
+
+memol all -n 1
+# I do something Task3 (at: 0000000000)
+
+memol all -r -n 2
+# I do something Task1 (at: 0000000000)
+# I do something Task2 (at: 0000000000)
+
+memol peek # memol top
+# I do something Task3 (at: 0000000000)
+
+memol peek -r # memol top -r
+# I do something Task1 (at: 0000000000)
 ```
 
 ## Recommend
 Customize your shell
 
-```bash
+```sh
 ###
 ### for example
 ###

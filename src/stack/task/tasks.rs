@@ -38,13 +38,13 @@ impl Tasks {
         self.tasks.last()
     }
 
-    pub fn peek_n(&self, count: usize) -> &[Task] {
-        let l = self.tasks.len();
-        &self.tasks[l - count..]
+    pub fn all(&self) -> &[Task] {
+        &self.tasks[0..self.tasks.len()]
     }
 
-    pub fn all(&self) -> &Vec<Task> {
-        &self.tasks
+    pub fn all_count(&self, count: usize) -> &[Task] {
+        let count = std::cmp::max(0, self.tasks.len() - count);
+        &self.tasks[count..self.tasks.len()]
     }
 
     pub fn clear(&mut self) {
@@ -90,5 +90,59 @@ mod tests {
     fn it_peek() {
         let tasks = init();
         assert_eq!(tasks.peek(), Some(&Task::new("Task3", 3)));
+    }
+
+    #[test]
+    fn it_all() {
+        let mut tasks = Tasks::new();
+        tasks.push(Task::new("Task1", 1));
+        tasks.push(Task::new("Task2", 2));
+        tasks.push(Task::new("Task3", 3));
+        assert_eq!(
+            tasks.all(),
+            &[
+                Task::new("Task1", 1),
+                Task::new("Task2", 2),
+                Task::new("Task3", 3),
+            ]
+        );
+    }
+
+    #[test]
+    fn it_all_count() {
+        let mut tasks = Tasks::new();
+        tasks.push(Task::new("Task1", 1));
+        tasks.push(Task::new("Task2", 2));
+        tasks.push(Task::new("Task3", 3));
+        assert_eq!(
+            tasks.all_count(2),
+            &[Task::new("Task2", 2), Task::new("Task3", 3),]
+        );
+    }
+
+    #[test]
+    fn it_reverse() {
+        let mut tasks = Tasks::new();
+        tasks.push(Task::new("Task1", 1));
+        tasks.push(Task::new("Task2", 2));
+        tasks.push(Task::new("Task3", 3));
+        assert_eq!(
+            tasks.r().tasks,
+            vec![
+                Task::new("Task3", 3),
+                Task::new("Task2", 2),
+                Task::new("Task1", 1),
+            ]
+        );
+    }
+
+    #[test]
+    fn it_clear() {
+        let mut tasks = Tasks::new();
+        tasks.push(Task::new("Task1", 1));
+        tasks.push(Task::new("Task2", 2));
+        tasks.push(Task::new("Task3", 3));
+        tasks.clear();
+        assert_eq!(tasks.tasks, vec![]);
     }
 }

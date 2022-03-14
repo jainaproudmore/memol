@@ -1,21 +1,19 @@
 use super::super::task::Tasks;
-use std::io::{Error, Read, Result, Write};
+use std::io::{Read, Result, Write};
 use std::path::Path;
 
 /// for saving json
 pub struct JsonFile<'a> {
     path: &'a Path,
-    tasks: Tasks,
 }
 
 impl<'a> JsonFile<'a> {
-    pub fn init(path: &'a Path) -> Result<Self> {
-        let tasks = Self::read(path)?;
-        Ok(JsonFile { path, tasks })
+    pub fn new(path: &'a Path) -> Self {
+        JsonFile { path }
     }
 
-    fn read(path: &Path) -> Result<Tasks> {
-        let f = std::fs::File::open(path);
+    pub fn read(&self) -> Result<Tasks> {
+        let f = std::fs::File::open(self.path);
         if let Err(_) = f {
             return Ok(Tasks::new());
         }
@@ -32,17 +30,13 @@ impl<'a> JsonFile<'a> {
         }
     }
 
-    pub fn sync(&self) -> Result<()> {
+    pub fn sync(&self, tasks: &Tasks) -> Result<()> {
         // if file has already created , not exec error.
         let mut f = std::fs::File::create(self.path)?;
 
-        let json = Tasks::to_json(&self.tasks)?;
+        let json = Tasks::to_json(tasks)?;
         f.write_all(&json.as_bytes())?;
         f.flush()?;
         Ok(())
-    }
-
-    pub fn tasks(&mut self) -> &mut Tasks {
-        &mut self.tasks
     }
 }

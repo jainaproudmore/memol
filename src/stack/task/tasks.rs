@@ -20,6 +20,12 @@ impl Tasks {
         to_string(tasks)
     }
 
+    pub fn r(self) -> Tasks {
+        Tasks {
+            tasks: self.tasks.into_iter().rev().collect::<Vec<_>>(),
+        }
+    }
+
     pub fn pop(&mut self) -> Option<Task> {
         self.tasks.pop()
     }
@@ -32,12 +38,17 @@ impl Tasks {
         self.tasks.last()
     }
 
-    pub fn top(&self) -> Option<&Task> {
-        self.peek()
+    pub fn all(&self) -> &[Task] {
+        &self.tasks[0..self.tasks.len()]
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.tasks.len() == 0
+    pub fn all_count(&self, count: usize) -> &[Task] {
+        let count = std::cmp::max(0, self.tasks.len() - count);
+        &self.tasks[count..self.tasks.len()]
+    }
+
+    pub fn clear(&mut self) {
+        self.tasks = Vec::new();
     }
 }
 
@@ -82,17 +93,56 @@ mod tests {
     }
 
     #[test]
-    fn it_top() {
-        let tasks = init();
-        assert_eq!(tasks.top(), Some(&Task::new("Task3", 3)));
+    fn it_all() {
+        let mut tasks = Tasks::new();
+        tasks.push(Task::new("Task1", 1));
+        tasks.push(Task::new("Task2", 2));
+        tasks.push(Task::new("Task3", 3));
+        assert_eq!(
+            tasks.all(),
+            &[
+                Task::new("Task1", 1),
+                Task::new("Task2", 2),
+                Task::new("Task3", 3),
+            ]
+        );
     }
 
     #[test]
-    fn it_empty() {
-        let tasks = init();
-        assert_eq!(tasks.is_empty(), false);
+    fn it_all_count() {
+        let mut tasks = Tasks::new();
+        tasks.push(Task::new("Task1", 1));
+        tasks.push(Task::new("Task2", 2));
+        tasks.push(Task::new("Task3", 3));
+        assert_eq!(
+            tasks.all_count(2),
+            &[Task::new("Task2", 2), Task::new("Task3", 3),]
+        );
+    }
 
-        let tasks = Tasks::new();
-        assert_eq!(tasks.is_empty(), true);
+    #[test]
+    fn it_reverse() {
+        let mut tasks = Tasks::new();
+        tasks.push(Task::new("Task1", 1));
+        tasks.push(Task::new("Task2", 2));
+        tasks.push(Task::new("Task3", 3));
+        assert_eq!(
+            tasks.r().tasks,
+            vec![
+                Task::new("Task3", 3),
+                Task::new("Task2", 2),
+                Task::new("Task1", 1),
+            ]
+        );
+    }
+
+    #[test]
+    fn it_clear() {
+        let mut tasks = Tasks::new();
+        tasks.push(Task::new("Task1", 1));
+        tasks.push(Task::new("Task2", 2));
+        tasks.push(Task::new("Task3", 3));
+        tasks.clear();
+        assert_eq!(tasks.tasks, vec![]);
     }
 }

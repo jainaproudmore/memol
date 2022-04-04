@@ -8,7 +8,7 @@ mod stack;
 
 use chrono::prelude::*;
 use clap::{Arg, Command};
-use stack::json::JsonFile;
+use stack::json::{JsonFile, Persistence};
 use stack::task::Task;
 use std::io::{Error, ErrorKind, Result};
 use std::path::Path;

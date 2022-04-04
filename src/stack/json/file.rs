@@ -1,4 +1,5 @@
 use super::super::task::Tasks;
+use super::persistence::Persistence;
 use std::io::{Read, Result, Write};
 use std::path::Path;
 
@@ -11,8 +12,10 @@ impl<'a> JsonFile<'a> {
     pub fn new(path: &'a Path) -> Self {
         JsonFile { path }
     }
+}
 
-    pub fn read(&self) -> Result<Tasks> {
+impl<'a> Persistence for JsonFile<'a> {
+    fn read(&self) -> Result<Tasks> {
         let f = std::fs::File::open(self.path);
         if let Err(_) = f {
             return Ok(Tasks::new());
@@ -30,13 +33,13 @@ impl<'a> JsonFile<'a> {
         }
     }
 
-    pub fn sync(&self, tasks: &Tasks) -> Result<()> {
+    fn sync(&self, tasks: &Tasks) -> Result<Tasks> {
         // if file has already created , not exec error.
         let mut f = std::fs::File::create(self.path)?;
 
         let json = Tasks::to_json(tasks)?;
         f.write_all(&json.as_bytes())?;
         f.flush()?;
-        Ok(())
+        self.read()
     }
 }
